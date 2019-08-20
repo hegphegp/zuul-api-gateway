@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: gateway-zuul
+
+eureka:
+  instance:
+    #    #eureka客户端需要多长时间发送心跳给eureka服务器，表明他仍然或者，默认30秒
+    lease-renewal-interval-in-seconds: 3
+    #    #eureka服务器在接受到实力的最后一次发出的心跳后，需要等待多久才可以将此实力删除
+    lease-expiration-duration-in-seconds: 60
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://192.168.0.100:8761/eureka
+
+server:
+  port: 8888
+zuul:
+  add-proxy-headers: true
+  sensitive-headers: '*'

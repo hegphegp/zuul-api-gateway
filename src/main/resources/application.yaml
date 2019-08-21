@@ -19,3 +19,9 @@ server:
 zuul:
   add-proxy-headers: true
   sensitive-headers: '*'
+  host:
+    connect-timeout-millis: 15000 #HTTP连接超时要比Hystrix的大
+    socket-timeout-millis: 60000   #socket超时
+ribbon:
+  ReadTimeout: 10000
+  ConnectTimeout: 10000

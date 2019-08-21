@@ -14,27 +14,28 @@ import java.util.Enumeration;
 @Component
 public class GlobalFilter extends ZuulFilter {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Override
     public Object run() {
         RequestContext ctx = RequestContext.getCurrentContext();
-        HttpServletRequest request = ctx.getRequest();
-        printAllHeaders(request);
-        dynamicAddZuulRequestHeader(ctx);
+        printAllHeaders(ctx);
+        configXForwardedUriRequestHeader(ctx);
         ctx.setSendZuulResponse(true); // 对该请求进行路由
         ctx.set("isSuccess", true);    // 设值，让下一个Filter看到上一个Filter的状态
         return null;
     }
 
-    private void dynamicAddZuulRequestHeader(RequestContext ctx) {
+    private void configXForwardedUriRequestHeader(RequestContext ctx) {
         HttpServletRequest request = ctx.getRequest();
         // 如果网关前面经过nginx,nginx一定要配置 proxy_set_header X-Forwarded-Uri $uri; , 否则后面的服务取不到完整的请求URL
         // 如果网关服务前面没有nginx的代理,网关一定要配置 "x-forwarded-uri" 参数, 否则后面的服务取不到完整的请求URL
-        if (StringUtils.isEmpty(request.getHeader("x-forwarded-uri"))) { // 有,不添加,没有,才添加
+        if (StringUtils.isEmpty(request.getHeader("x-forwarded-uri"))) { // 请求头有 x-forwarded-uri 参数,不添加; 没有, 才添加
             ctx.addZuulRequestHeader("x-forwarded-uri", request.getRequestURI());
         }
     }
 
-    public void printAllHeaders(HttpServletRequest request) {
+    public void printAllHeaders(RequestContext ctx) {
+        HttpServletRequest request = ctx.getRequest();
         Enumeration<String> headers = request.getHeaderNames();
         while (headers.hasMoreElements()) {
             String headerName = headers.nextElement();
